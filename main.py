@@ -34,14 +34,6 @@ def get_all_users():
     serialized_users = [{"id": user.id, "username": user.username} for user in users]
     return jsonify({"users": serialized_users})
 
-@app.route('/delete/<user_id>/', methods=['DELETE'])
-def delete_user(user_id: int):
-    user = db.query(User).filter(User.id==user_id).first()
-    db.delete(user)
-    db.commit()
-    db.close()
-    return jsonify({"message": "user is deleted....!!!"})
-
 @app.route('/update/<user_id>/', methods=['PATCH'])
 def update_user(user_id:int):   
     update_user_data = request.json
