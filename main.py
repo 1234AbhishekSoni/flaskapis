@@ -34,18 +34,21 @@ def serialize_user(user):
     return {"id": user.id, "username": user.username}
 
 
-@app.route('/all/<user_id>/', methods=['GET'])
-def get_all_users(user_id):
+@app.route('/user/<user_id>/', methods=['GET'])
+def get_users_by_id(user_id):
     try:
         if user_id:
             user = db.query(User).filter(User.id == user_id).first()
             return jsonify({"user": serialize_user(user)} if user else {"message": "User not found"})
-
-        users = db.query(User).all()
-        serialized_users = [serialize_user(user) for user in users]
-        return jsonify({"users": serialized_users})
     finally:
         db.close()
+
+
+@app.route('/all/', methods=['GET'])
+def get_all_users():
+    users = db.query(User).all()
+    serialize_users = [serialize_user(user) for user in users]
+    return {"users": serialize_users}
 
 
 @app.route('/delete/<user_id>/', methods=['DELETE'])
