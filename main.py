@@ -1,11 +1,10 @@
-from flask import Flask, jsonify, request, abort
-from db import SessionLocal, User, Order
-from pydantic import BaseModel
-import json
 import bcrypt
+from flask import Flask, jsonify, request, abort
+from pydantic import BaseModel
+
+from db import SessionLocal, User, Order
 
 app = Flask(__name__)
-
 db = SessionLocal()
 
 
@@ -109,6 +108,21 @@ def get_orders():
     orders = db.query(Order).all()
     serialized_orders = [serialize_orders(order) for order in orders]
     return jsonify({"orders": serialized_orders})
+
+
+@app.route('/update-order/<order_id>/', methods=['PATCH'])
+def update_order(order_id: int):
+    update_order_data = request.json
+    order = db.query(Order).filter(Order.id == order_id).first()
+    # CHECK USER EXISTING
+    if order:
+        # update order object with new data
+        for key, value in update_order_data.items():
+            setattr(order, key, value)
+        db.commit()
+        return jsonify({"message": f"Order with ID {order_id} updated successfully"})
+    else:
+        return jsonify({"message": f"Order with ID {order_id} not found"})
 
 
 if __name__ == "__main__":
